@@ -51,8 +51,6 @@ func (app *application) snippetView(w http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%+v", snippet)
-
-	//fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
