@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"gitlab.com/fqazi/snippet-box/internal/models"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -31,7 +33,11 @@ func main() {
 
 	defer db.Close()
 
-	app := &application{errorLog: errorLog, infoLog: infoLog}
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
+	}
 
 	srv := &http.Server{
 		Addr:     *addr,
