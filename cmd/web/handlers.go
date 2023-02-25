@@ -48,5 +48,14 @@ func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	w.Write([]byte("Snippet create"))
+	title := "o snail"
+	content := "O snail\bClimb mount Fuji,\nBut slowly, slowly,!\n\n- Kobayahi Issa"
+	expires := 7
+
+	id, err := app.snippets.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+	}
+
+	http.Redirect(w, req, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
