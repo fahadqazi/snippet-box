@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"gitlab.com/fqazi/snippet-box/internal/models"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -38,7 +40,19 @@ func (app *application) snippetView(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%+v", snippet)
+
+	//fmt.Fprintf(w, "Display a specific snippet with ID %d", id)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) {
