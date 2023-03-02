@@ -54,13 +54,24 @@ func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) 
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Request) {
-	title := "o snail"
-	content := "O snail\bClimb mount Fuji,\nBut slowly, slowly,!\n\n- Kobayahi Issa"
-	expires := 7
+	err := req.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	title := req.PostForm.Get("title")
+	content := req.PostForm.Get("content")
+	expires, err := strconv.Atoi(req.PostForm.Get("expires"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
 	id, err := app.snippets.Insert(title, content, expires)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
 
 	http.Redirect(w, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
