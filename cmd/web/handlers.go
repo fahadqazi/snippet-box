@@ -52,12 +52,6 @@ func (app *application) snippetCreate(w http.ResponseWriter, req *http.Request) 
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Request) {
-	//if req.Method != http.MethodPost {
-	//	w.Header().Set("Allow", http.MethodPost)
-	//	app.clientError(w, http.StatusMethodNotAllowed)
-	//	return
-	//}
-
 	title := "o snail"
 	content := "O snail\bClimb mount Fuji,\nBut slowly, slowly,!\n\n- Kobayahi Issa"
 	expires := 7
