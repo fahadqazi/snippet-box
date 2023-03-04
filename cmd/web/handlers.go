@@ -11,6 +11,13 @@ import (
 	"unicode/utf8"
 )
 
+type snippetCreateForm struct {
+	Title      string
+	Content    string
+	Expires    int
+	FieldError map[string]string
+}
+
 func (app *application) home(w http.ResponseWriter, req *http.Request) {
 	snippets, err := app.snippets.Latest()
 	if err != nil {
@@ -62,23 +69,28 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	title := req.PostForm.Get("title")
-	content := req.PostForm.Get("content")
 	expires, err := strconv.Atoi(req.PostForm.Get("expires"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
+	form := snippetCreateForm{
+		Title:      req.PostForm.Get("title"),
+		Content:    req.PostForm.Get("content"),
+		Expires:    expires,
+		FieldError: map[string]string{},
+	}
+
 	fieldErrors := make(map[string]string)
 
-	if strings.TrimSpace(title) == "" {
+	if strings.TrimSpace(form.Title) == "" {
 		fieldErrors["title"] = "This field cannot be blank"
-	} else if utf8.RuneCountInString(title) > 100 {
+	} else if utf8.RuneCountInString(form.Title) > 100 {
 		fieldErrors["title"] = "This field cannot be more than 100 characters long"
 	}
 
-	if strings.TrimSpace(content) == "" {
+	if strings.TrimSpace(form.Content) == "" {
 		fieldErrors["content"] = "This field cannot be blank"
 	}
 
@@ -87,10 +99,13 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 	}
 
 	if len(fieldErrors) > 0 {
-		fmt.Fprint(w, fieldErrors)
+		data := app.newTemplateData(req)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "create.tmpl.html", data)
+		return
 	}
 
-	id, err := app.snippets.Insert(title, content, expires)
+	id, err := app.snippets.Insert(form.Title, form.Content, expires)
 	if err != nil {
 		app.serverError(w, err)
 		return
