@@ -83,8 +83,6 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 		FieldErrors: map[string]string{},
 	}
 
-	//fieldErrors := make(map[string]string)
-
 	if strings.TrimSpace(form.Title) == "" {
 		form.FieldErrors["title"] = "This field cannot be blank"
 	} else if utf8.RuneCountInString(form.Title) > 100 {
