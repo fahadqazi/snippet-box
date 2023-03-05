@@ -11,10 +11,10 @@ import (
 )
 
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 func (app *application) home(w http.ResponseWriter, req *http.Request) {
@@ -69,22 +69,18 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	expires, err := strconv.Atoi(req.PostForm.Get("expires"))
+	var form snippetCreateForm
+
+	err = app.formDecoder.Decode(&form, req.PostForm)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	form := snippetCreateForm{
-		Title:   req.PostForm.Get("title"),
-		Content: req.PostForm.Get("content"),
-		Expires: expires,
-	}
-
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
-	form.CheckField(validator.MaxChars(form.Title, 180), "title", "This field cannot be more than 100 characters long")
+	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
 	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
-	form.CheckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7, 365")
+	form.CheckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7 or 365")
 
 	if !form.Valid() {
 		data := app.newTemplateData(req)
@@ -93,7 +89,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	id, err := app.snippets.Insert(form.Title, form.Content, expires)
+	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -101,3 +97,33 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 
 	http.Redirect(w, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
+
+//func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Request) {
+//	var form snippetCreateForm
+//
+//	err := app.decodePostForm(req, &form)
+//	if err != nil {
+//		app.clientError(w, http.StatusBadRequest)
+//		return
+//	}
+//
+//	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+//	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
+//	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
+//	form.CheckField(validator.PermittedInt(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7 or 365")
+//
+//	if !form.Valid() {
+//		data := app.newTemplateData(req)
+//		data.Form = form
+//		app.render(w, http.StatusUnprocessableEntity, "create.tmpl.html", data)
+//		return
+//	}
+//
+//	id, err := app.snippets.Insert(form.Title, form.Content, form.Expires)
+//	if err != nil {
+//		app.serverError(w, err)
+//		return
+//	}
+//
+//	http.Redirect(w, req, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+//}
