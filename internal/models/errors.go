@@ -9,5 +9,3 @@ var (
 
 	ErrDuplicateEmail = errors.New("models: duplicate email")
 )
-
-
