@@ -98,21 +98,21 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, req *http.Reque
 }
 
 func (app *application) userSignup(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(w, "Display a HTML form for signing up a new user ...")
+	fmt.Fprintln(w, "Display a HTML form for signing up a new user ...")
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(w, "Create a new user ...")
+	fmt.Fprintln(w, "Create a new user ...")
 }
 
 func (app *application) userLogin(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(w, "Display a HTML form for user login")
+	fmt.Fprintln(w, "Display a HTML form for user login")
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(w, "Authenticate and login the user ...")
+	fmt.Fprintln(w, "Authenticate and login the user ...")
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(w, "Logout the user ...")
+	fmt.Fprintln(w, "Logout the user ...")
 }
