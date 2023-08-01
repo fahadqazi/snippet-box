@@ -29,7 +29,6 @@ func main() {
 	infoLog.Printf("Serving on port :%s", *addr)
 	err := http.ListenAndServe(*addr, mux)
 	if err != nil {
-		log.Fatal(err)
 		errorLog.Fatal(err)
 	}
 }
